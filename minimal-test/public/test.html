@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Minimal Socket.IO Test</title>
+  </head>
+  <body>
+    <h1>Minimal Socket.IO Test Page</h1>
+    <p id="status">Connecting...</p>
+
+    <!-- Load Socket.IO client -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // Force the "websocket" transport to detect if environment blocks them
+      const socket = io({
+        transports: ['websocket'],
+        timeout: 30000 // 30 seconds for connection attempt
+      });
+
+      socket.on('connect', () => {
+        console.log('[DEBUG] Connected to server:', socket.id);
+        document.getElementById('status').textContent = 'Connected via websocket!';
+        socket.emit('test-event', 'Hello from client');
+      });
+
+      socket.on('test-response', (message) => {
+        console.log('[DEBUG] Received from server:', message);
+      });
+
+      socket.on('connect_error', (err) => {
+        console.error('[DEBUG] connect_error:', err.message);
+        document.getElementById('status').textContent = 'Connection Error: ' + err.message;
+      });
+
+      socket.on('disconnect', (reason) => {
+        console.log('[DEBUG] Disconnected from server:', reason);
+        document.getElementById('status').textContent = 'Disconnected: ' + reason;
+      });
+    </script>
+  </body>
+</html>
