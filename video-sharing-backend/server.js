@@ -4,7 +4,7 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 
 const app = express();
-app.use(cors({ origin: "*" })); // Adjust origin as needed for production
+app.use(cors({ origin: "*" })); // Adjust origin for production, if needed
 
 const server = http.createServer(app);
 
@@ -27,6 +27,29 @@ io.on('connection', (socket) => {
   socket.on('chatMessage', ({ roomId, message }) => {
     console.log(`[DEBUG] Message in room ${roomId}: ${message}`);
     io.to(roomId).emit('roomMessage', `User ${socket.id}: ${message}`);
+  });
+
+  // *************************
+  // VIDEO SYNC EVENTS
+  // *************************
+  
+  // When a client plays the video
+  socket.on('video:play', ({ roomId, currentTime }) => {
+    console.log(`[DEBUG] video:play from socket ${socket.id}, currentTime=${currentTime}`);
+    // Broadcast to everyone else in the room
+    socket.to(roomId).emit('video:play', { currentTime });
+  });
+
+  // When a client pauses the video
+  socket.on('video:pause', ({ roomId, currentTime }) => {
+    console.log(`[DEBUG] video:pause from socket ${socket.id}, currentTime=${currentTime}`);
+    socket.to(roomId).emit('video:pause', { currentTime });
+  });
+
+  // When a client seeks the video
+  socket.on('video:seek', ({ roomId, currentTime }) => {
+    console.log(`[DEBUG] video:seek from socket ${socket.id}, currentTime=${currentTime}`);
+    socket.to(roomId).emit('video:seek', { currentTime });
   });
 
   // Disconnect
