@@ -27,6 +27,13 @@ function ChatSection({ socket, roomId }) {
     }
   };
 
+  // Press Enter to send
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
   return (
     <div className="chat-section">
       <h3>Chat</h3>
@@ -43,6 +50,7 @@ function ChatSection({ socket, roomId }) {
           placeholder="Type a message..." 
           value={inputMsg}
           onChange={(e) => setInputMsg(e.target.value)}
+          onKeyDown={handleKeyDown} // <-- Press Enter to send
         />
         <button onClick={sendMessage}>Send</button>
       </div>
