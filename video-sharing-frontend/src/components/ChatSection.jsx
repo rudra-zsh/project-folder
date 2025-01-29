@@ -52,7 +52,7 @@ function ChatSection({ socket, roomId }) {
           onChange={(e) => setInputMsg(e.target.value)}
           onKeyDown={handleKeyDown} // <-- Press Enter to send
         />
-        <button onClick={sendMessage}>Send</button>
+        <button className='glass-button' onClick={sendMessage}>Send</button>
       </div>
     </div>
   );

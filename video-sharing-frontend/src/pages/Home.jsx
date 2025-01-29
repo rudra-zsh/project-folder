@@ -46,10 +46,10 @@ function Home() {
           value={roomId} 
           onChange={(e) => setRoomId(e.target.value)}
         />
-        <button onClick={handleJoin}>Join</button>
+        <button className='glass-button' onClick={handleJoin}>Join</button>
 
         <h2>Create a Room</h2>
-        <button onClick={()=>{
+        <button className='glass-button' onClick={()=>{
           handleJoin2(generateRandomAlphaNumeric());
         //  setTimeout(()=>{
           
