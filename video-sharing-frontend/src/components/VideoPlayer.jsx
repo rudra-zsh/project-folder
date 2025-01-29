@@ -141,7 +141,7 @@ function VideoPlayer({ socket, roomId }) {
         controls
         onSeeked={handleSeeked} // If user drags the timeline
       >
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+        <source src="https://rr2---sn-cvh7knzl.googlevideo.com/videoplayback?expire=1738153522&ei=0smZZ--EJNnap-oPge-q6Ak&ip=105.102.217.68&id=o-AF31gBOLVwx25ONs9TibKUn-S62WQZHOYLkiYVD3F_06&itag=18&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&bui=AY2Et-My1v2ZQNHDhsfYzqMd2jncnBI03yiqY2Hrjx8BAXd9qDtRFEzyY7axP5ZgHWj3kkV3iF7To7nb&spc=9kzgDSGAhJTAhWCpO8s7y5gh4iAYz8z7JkiP-RJAmldAkIWM1rT6IhkA4rz923keIQ&vprv=1&svpuc=1&mime=video%2Fmp4&ns=EO-06yqbGqqvEM1D5qR_V9AQ&rqh=1&gir=yes&clen=28769077&ratebypass=yes&dur=562.898&lmt=1738110195639741&fexp=24350590,24350737,24350824,24350827,24350933,24350961,24350977,24350999,24351028,24351059,24351081,51326932,51331020,51353498,51371294&c=MWEB&sefc=1&txp=4538534&n=T-V3EABB69UAwQ&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cratebypass%2Cdur%2Clmt&sig=AJfQdSswRgIhAPbztGZY-qNiYLeIQyf8aIAhv0uUOzhhsvssujlwIVQeAiEAlGuDRJHASG_6olBhGbUPGL5AmXDkbhKuG7YPfhHQzCg%3D&title=Samsung%20Galaxy%20S25%2FUltra%20Impressions%3A%20What%20Happened%3F&rm=sn-5abxgpxuxaxjvh-5aby7e,sn-hgnek7e&rrc=79,104&req_id=1403978c5e5a3ee&cmsv=e&rms=rdu,au&redirect_counter=2&cms_redirect=yes&ipbypass=yes&met=1738147361,&mh=b3&mip=14.194.118.66&mm=29&mn=sn-cvh7knzl&ms=rdu&mt=1738147028&mv=m&mvi=2&pl=22&lsparams=ipbypass,met,mh,mip,mm,mn,ms,mv,mvi,pl,rms&lsig=AGluJ3MwRAIgNzMo4J-h3eTihLeqeuK8XvOk7gMyGo3GU5BwlV6T8akCIHhERxwKX8-SyZRAo1uG5HcesH4E4EhAGu6HmA3L8Noe" type="video/mp4" />
         Your browser does not support HTML5 video.
       </video>
 
