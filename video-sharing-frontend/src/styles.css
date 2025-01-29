@@ -29,11 +29,55 @@ body::before {
   z-index: -1;
 }
 
+/*
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background-color: #222; /* Fallback if image fails */
+  background-color: #222; /* Fallback if image fails 
 }
+*/
+/* 
+
+1. this is bright animated background
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(-45deg, #ff6b6b, #f7b801, #6bffb5, #4f9eff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(-45deg, #1e1e2e, #282a36, #212121, #0f0f0f);
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 
 /**************************************************************
   3D & GLASS-LIKE UTILS

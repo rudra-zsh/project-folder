@@ -130,10 +130,10 @@ function VideoPlayer({ socket, roomId }) {
         className="mb-4 p-2 border border-gray-300 rounded"
       />
       <div style={{ marginTop: '10px' }}>
-        <button onClick={handlePlay}>Play</button>
-        <button onClick={handlePause} style={{ marginLeft: '10px' }}>Pause</button>
-        <button onClick={() => handleSkip(10)} style={{ marginLeft: '10px' }}>Forward 10s</button>
-        <button onClick={() => handleSkip(-10)} style={{ marginLeft: '10px' }}>Backward 10s</button>
+        <button className='glass-button' onClick={handlePlay}>Play</button>
+        <button className='glass-button' onClick={handlePause} style={{ marginLeft: '10px' }}>Pause</button>
+        <button className='glass-button' onClick={() => handleSkip(10)} style={{ marginLeft: '10px' }}>Forward 10s</button>
+        <button className='glass-button' onClick={() => handleSkip(-10)} style={{ marginLeft: '10px' }}>Backward 10s</button>
       </div>
     </div>
   );
