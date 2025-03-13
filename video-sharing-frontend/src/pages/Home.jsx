@@ -35,6 +35,12 @@ function Home() {
     // }
     // console.log("handeljoin2", {roomId});
   };
+    // Press Enter to send
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        handleJoin();
+      }
+    };
 
   return (
     <div className="page home-page">
@@ -45,17 +51,18 @@ function Home() {
           placeholder="Enter Room ID" 
           value={roomId} 
           onChange={(e) => setRoomId(e.target.value)}
-        />
-        <button className='glass-button' onClick={handleJoin}>Join</button>
+          onKeyDown={handleKeyDown}
+        /> &nbsp; &nbsp;
+        <button className='glass-button' onClick={handleJoin} >Join</button>
 
-        <h2>Create a Room</h2>
+        <br></br>
         <button className='glass-button' onClick={()=>{
           handleJoin2(generateRandomAlphaNumeric());
         //  setTimeout(()=>{
           
         //  },2);
           console.log("working");
-        }}>Join</button>
+        }}>Create a new Room</button>
       </div>
     </div>
   );

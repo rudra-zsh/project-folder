@@ -33,6 +33,7 @@ function Room() {
       console.log('[DEBUG FRONTEND] Room component unmounted, socket remains connected');
     };
   }, [roomId, isConnected]);
+  
 
   return (
     <div className="page room-page">
@@ -41,7 +42,7 @@ function Room() {
         <div className="video-container">
           {/* Pass socket and roomId to enable synchronized video */}
           <VideoPlayer socket={socket} roomId={roomId} />
-          <UserVideoFeed />
+
         </div>
         <ChatSection socket={socket} roomId={roomId} />
       </div>
