@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 import ChatSection from '../components/ChatSection';
 import VideoPlayer from '../components/VideoPlayer';
-import UserVideoFeed from '../components/UserVideoFeed';
+import { useLocation } from 'react-router-dom';
 
 // GLOBAL socket instance to avoid repeated unmounting/creation.
 let socket = null;
@@ -11,7 +11,11 @@ let socket = null;
 function Room() {
   const { roomId } = useParams();
   const [isConnected, setIsConnected] = useState(false);
-
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);  // Track loading state
+  const username = location.state?.username;
+  //printing the name 
+  console.log('username->'+username);
   useEffect(() => {
     if (!socket) {
       console.log('[DEBUG FRONTEND] Creating global socket connection');
@@ -25,10 +29,16 @@ function Room() {
     if (!isConnected) {
       socket.connect(); 
       socket.emit('joinRoom', roomId);
+      socket.emit('updateUsername',{username});
       setIsConnected(true);
     }
+    // Simulate a delay before fully rendering the room
+    const delay = setTimeout(() => {
+      setIsLoading(false);  // Set loading to false after delay
+    }, 2000);  // Delay in milliseconds (e.g., 2000ms = 2 seconds)
 
     return () => {
+      clearTimeout(delay); // Cleanup timeout if the component is unmounted
       // We do NOT disconnect here, to keep the socket global.
       console.log('[DEBUG FRONTEND] Room component unmounted, socket remains connected');
     };
@@ -44,7 +54,7 @@ function Room() {
           <VideoPlayer socket={socket} roomId={roomId} />
 
         </div>
-        <ChatSection socket={socket} roomId={roomId} />
+        <ChatSection socket={socket} roomId={roomId} username={username} />
       </div>
     </div>
   );

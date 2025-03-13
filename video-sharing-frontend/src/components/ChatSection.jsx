@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function ChatSection({ socket, roomId }) {
+function ChatSection({ socket, roomId ,username }) {
   const [messages, setMessages] = useState([]);
   const [inputMsg, setInputMsg] = useState('');
   const messagesEndRef = useRef(null);  // Ref for auto-scrolling
@@ -11,7 +11,7 @@ function ChatSection({ socket, roomId }) {
 
     const handleRoomMessage = (msg) => {
       console.log('[DEBUG FRONTEND] Received roomMessage:', msg);
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => [...prev, {username: msg.username ,message: msg.message}]);
     };
 
     socket.on('roomMessage', handleRoomMessage);
@@ -37,8 +37,9 @@ function ChatSection({ socket, roomId }) {
   const sendMessage = () => {
     if (inputMsg.trim()) {
       console.log('[DEBUG FRONTEND] Sending chatMessage:', inputMsg);
-      socket.emit('chatMessage', { roomId, message: inputMsg });
+      socket.emit('chatMessage', { roomId, message: inputMsg ,username });
       setInputMsg('');
+      console.log("username:"+socket.username);
     }
   };
 
@@ -55,7 +56,7 @@ function ChatSection({ socket, roomId }) {
       <div ref={messagesContainerRef} className="messages">
         {messages.map((m, idx) => (
           <div key={idx} className="message">
-            {m}
+            <strong>{m.username}:</strong> {m.message}
           </div>
         ))}
         <div ref={messagesEndRef} />

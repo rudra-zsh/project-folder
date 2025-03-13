@@ -15,18 +15,40 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
   console.log('[DEBUG] New client connected:', socket.id);
-
+    const person = socket.id;
+    socket.username = `user-${socket.id.slice(0,3)}`;
+  // class user {
+  //   constructor(id , username){
+  //     this.id = id;
+  //     this.username = username;
+  //   }
+  // }
   // Join a room
+
+  //updating the username before
+  socket.on('updateUsername', ({ username }) => {
+    //  person = new user (socket.id,username);
+    //  console.log(person);
+    const oldUsername = socket.username;
+    socket.username = username;
+});
+
   socket.on('joinRoom', (roomId) => {
     socket.join(roomId);
-    console.log(`[DEBUG] Socket ${socket.id} joined room: ${roomId}`);
-    socket.to(roomId).emit('roomMessage', `User ${socket.id} has joined the room.`);
+    socket.data.roomId = roomId; // Track the roomId
+  socket.to(roomId).emit('roomMessage', { 
+    username: socket.username, 
+    message: 'has joined the room' 
+  });
+    console.log(`[DEBUG] Socket ${socket.id} named ${socket.username} joined room: ${roomId}`);
+    //socket.to(roomId).emit('roomMessage', `User ${socket.username} has joined the room.`);
   });
 
   // Handle chat messages
+
   socket.on('chatMessage', ({ roomId, message }) => {
-    console.log(`[DEBUG] Message in room ${roomId}: ${message}`);
-    io.to(roomId).emit('roomMessage', `User ${socket.id}: ${message}`);
+    console.log(`[DEBUG] Message from ${socket.username} in room ${roomId}: ${message}`);
+    io.to(roomId).emit('roomMessage', {username:socket.username , message});
   });
 
   // *************************
@@ -54,7 +76,15 @@ io.on('connection', (socket) => {
 
   // Disconnect
   socket.on('disconnect', (reason) => {
+    roomId = socket.data.roomId;
+    if (roomId) {
+      socket.to(roomId).emit('roomMessage', { 
+        username: socket.username, 
+        message: 'has left the room' 
+      });
+    }
     console.log('[DEBUG] Client disconnected:', socket.id, 'Reason:', reason);
+    
   });
 });
 
