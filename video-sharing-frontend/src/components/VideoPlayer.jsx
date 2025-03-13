@@ -109,12 +109,12 @@ function VideoPlayer({ socket, roomId }) {
   };
   return (
     <div className="video-player">
-      <h3>Synchronized Video Player</h3>
-      <p>Play a local video from /public folder</p>
+     {/* <h3>Synchronized Video Player</h3>
+      <p>{/*Play a local video from /public folder}</p> */}
       {videoSrc && (
       <video
         ref={videoRef}
-        width="400"
+        width="100vw"
         controls
         onSeeked={handleSeeked}
       >
