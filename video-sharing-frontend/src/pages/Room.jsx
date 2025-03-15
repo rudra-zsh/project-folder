@@ -50,11 +50,12 @@ function Room() {
       <h2>Room: {roomId}</h2>
       <div className="video-chat-container">
         <div className="video-container">
-          {/* Pass socket and roomId to enable synchronized video */}
           <VideoPlayer socket={socket} roomId={roomId} />
-          
         </div>
+        <div className="chat-container">
         <ChatSection socket={socket} roomId={roomId} username={username} />
+        </div>
+        
       </div>
     </div>
   );

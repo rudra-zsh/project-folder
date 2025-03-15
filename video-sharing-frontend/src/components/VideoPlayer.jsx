@@ -123,13 +123,15 @@ function VideoPlayer({ socket, roomId }) {
         Your browser does not support HTML5 video.
 
       </video>)}
+      <br></br>
+      <br></br>
       <input
         type="file"
         accept="video/*"
         onChange={handleFileChange}
         className="mb-4 p-2 border border-gray-300 rounded"
       />
-      <div style={{ marginTop: '10px' }}>
+      <div style={{ marginTop: '20px' }}>
         <button className='glass-button' onClick={handlePlay}>Play</button>
         <button className='glass-button' onClick={handlePause} style={{ marginLeft: '10px' }}>Pause</button>
         <button className='glass-button' onClick={() => handleSkip(10)} style={{ marginLeft: '10px' }}>Forward 10s</button>
