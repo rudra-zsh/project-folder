@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import io from 'socket.io-client';
 import ChatSection from '../components/ChatSection';
 import VideoPlayer from '../components/VideoPlayer';
-import { useLocation } from 'react-router-dom';
 
-// GLOBAL socket instance to avoid repeated unmounting/creation.
+// GLOBAL socket instance
 let socket = null;
 
 function Room() {
   const { roomId } = useParams();
   const [isConnected, setIsConnected] = useState(false);
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);  // Track loading state
+  const [isLoading, setIsLoading] = useState(true);
+
   const username = location.state?.username;
-  //printing the name 
-  console.log('username->'+username);
+  console.log('username-> ' + username);
+
   useEffect(() => {
     if (!socket) {
       console.log('[DEBUG FRONTEND] Creating global socket connection');
@@ -29,21 +29,31 @@ function Room() {
     if (!isConnected) {
       socket.connect(); 
       socket.emit('joinRoom', roomId);
-      socket.emit('updateUsername',{username});
+      socket.emit('updateUsername', { username });
       setIsConnected(true);
     }
-    // Simulate a delay before fully rendering the room
+
+    // Simulate a delay before fully rendering
     const delay = setTimeout(() => {
-      setIsLoading(false);  // Set loading to false after delay
-    }, 2000);  // Delay in milliseconds (e.g., 2000ms = 2 seconds)
+      setIsLoading(false);
+    }, 2000);
 
     return () => {
-      clearTimeout(delay); // Cleanup timeout if the component is unmounted
+      clearTimeout(delay);
       // We do NOT disconnect here, to keep the socket global.
       console.log('[DEBUG FRONTEND] Room component unmounted, socket remains connected');
     };
   }, [roomId, isConnected]);
-  
+
+  // Simple loading screen if needed:
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner" />
+        <div className="loading-text">Loading Room...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="page room-page">
@@ -52,10 +62,8 @@ function Room() {
         <div className="video-container">
           <VideoPlayer socket={socket} roomId={roomId} />
         </div>
-        <div className="chat-container">
+        {/* We can wrap ChatSection in a .chat-container or go directly */}
         <ChatSection socket={socket} roomId={roomId} username={username} />
-        </div>
-        
       </div>
     </div>
   );
