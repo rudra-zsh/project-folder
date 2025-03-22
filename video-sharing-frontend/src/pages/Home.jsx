@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
+// Create or reuse your global socket
 const socket = io('http://localhost:4000', {
   transports: ['websocket'],
   pingTimeout: 1800000,
@@ -19,8 +20,8 @@ function generateRandomAlphaNumeric() {
 
 function Home() {
   const [roomId, setRoomId] = useState('');
-  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const updateUsername = (newUsername) => {
@@ -43,18 +44,17 @@ function Home() {
     }, 1000);
   };
 
-  const handleJoin2 = (rmId) => {
+  const handleCreateRoom = () => {
     if (!username.trim()) {
       alert("Please enter a username before creating a room.");
       return;
     }
     setLoading(true);
 
+    const newRoomId = generateRandomAlphaNumeric();
     setTimeout(() => {
-      if (rmId) {
-        navigate("/room/" + rmId, { state: { username } });
-        setLoading(false);
-      }
+      navigate("/room/" + newRoomId, { state: { username } });
+      setLoading(false);
     }, 1000);
   };
 
@@ -70,12 +70,12 @@ function Home() {
         <h2>Join a Room</h2>
         <input 
           type="text" 
-          placeholder="Enter Room ID" 
-          value={roomId} 
+          placeholder="Enter Room ID"
+          value={roomId}
           onChange={(e) => setRoomId(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <br/>
+        <br />
         <div className="username-input">
           <input
             required
@@ -88,11 +88,8 @@ function Home() {
         </div>
         <center>
           <button className="glass-button" onClick={handleJoin}>Join</button>
-          <br/><br/>
-          <button 
-            className="glass-button"
-            onClick={() => handleJoin2(generateRandomAlphaNumeric())}
-          >
+          <br /><br />
+          <button className="glass-button" onClick={handleCreateRoom}>
             Create a new Room
           </button>
         </center>

@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import ChatSection from '../components/ChatSection';
+import WebRTCSection from '../components/WebRTCSection';
 import VideoPlayer from '../components/VideoPlayer';
 
-// GLOBAL socket instance
+// Reuse or create a global socket instance
 let socket = null;
 
 function Room() {
   const { roomId } = useParams();
-  const [isConnected, setIsConnected] = useState(false);
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
+  // If a username was passed via navigation
   const username = location.state?.username;
-  console.log('username-> ' + username);
+
+  // We track if we've connected
+  const [isConnected, setIsConnected] = useState(false);
+
+  // Whether we're allowed in
+  const [isApproved, setIsApproved] = useState(false);
+
+  // Whether we show loading
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!socket) {
-      console.log('[DEBUG FRONTEND] Creating global socket connection');
       socket = io('http://localhost:4000', {
         transports: ['websocket'],
         pingTimeout: 1800000,
@@ -27,43 +35,88 @@ function Room() {
     }
 
     if (!isConnected) {
-      socket.connect(); 
-      socket.emit('joinRoom', roomId);
+      socket.connect();
       socket.emit('updateUsername', { username });
+      socket.emit('joinRoom', roomId);
       setIsConnected(true);
     }
 
-    // Simulate a delay before fully rendering
-    const delay = setTimeout(() => {
+    // On approval => show room
+    const handleJoinApproved = () => {
+      console.log('[DEBUG FRONTEND] joinApproved received');
+      setIsApproved(true);
       setIsLoading(false);
-    }, 2000);
+    };
+    socket.on('joinApproved', handleJoinApproved);
+
+    // If forcibly disconnected => not used now
+    const handleDisconnect = (reason) => {
+      console.log('[DEBUG FRONTEND] Disconnected, reason =', reason);
+      if (!isApproved) {
+        // If server forcibly disconnects them for some reason, or environment
+        alert('Connection closed. Returning home.');
+        navigate('/');
+      }
+    };
+    socket.on('disconnect', handleDisconnect);
+
+    // If we are an *approved* user, we get joinRequest
+    const handleJoinRequest = ({ newUserId, newUsername }) => {
+      const answer = window.confirm(`${newUsername} wants to join. Allow?`);
+      if (answer) {
+        socket.emit('approveJoin', { newUserId });
+      } else {
+        socket.emit('denyJoin', { newUserId });
+      }
+    };
+    socket.on('joinRequest', handleJoinRequest);
+
+    // Minimal 1s loading
+    const timer = setTimeout(() => {
+      if (isApproved) {
+        setIsLoading(false);
+      }
+    }, 1000);
 
     return () => {
-      clearTimeout(delay);
-      // We do NOT disconnect here, to keep the socket global.
-      console.log('[DEBUG FRONTEND] Room component unmounted, socket remains connected');
+      clearTimeout(timer);
+      socket.off('joinApproved', handleJoinApproved);
+      socket.off('disconnect', handleDisconnect);
+      socket.off('joinRequest', handleJoinRequest);
     };
-  }, [roomId, isConnected]);
+  }, [roomId, username, isConnected, isApproved, navigate]);
 
-  // Simple loading screen if needed:
   if (isLoading) {
     return (
       <div className="loading-screen">
         <div className="loading-spinner" />
-        <div className="loading-text">Loading Room...</div>
+        <div className="loading-text">Waiting for acceptance...</div>
       </div>
     );
   }
 
+  // Show the normal UI if approved
   return (
     <div className="page room-page">
-      <h2>Room: {roomId}</h2>
-      <div className="video-chat-container">
-        <div className="video-container">
-          <VideoPlayer socket={socket} roomId={roomId} />
+      <div className="room-header">
+        <h2>{`Room: ${roomId}`}</h2>
+      </div>
+
+      <div className="main-layout">
+        {/* Left side: top user-thumbnails (WebRTC) + big video below */}
+        <div className="video-area">
+          <div className="top-thumbnails">
+            <WebRTCSection socket={socket} roomId={roomId} />
+          </div>
+          <div className="big-video">
+            <VideoPlayer socket={socket} roomId={roomId} />
+          </div>
         </div>
-        {/* We can wrap ChatSection in a .chat-container or go directly */}
-        <ChatSection socket={socket} roomId={roomId} username={username} />
+
+        {/* Right side: chat panel */}
+        <div className="chat-area">
+          <ChatSection socket={socket} roomId={roomId} username={username} />
+        </div>
       </div>
     </div>
   );

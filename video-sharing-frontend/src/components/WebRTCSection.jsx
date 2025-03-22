@@ -4,16 +4,21 @@ function WebRTCSection({ socket, roomId }) {
   const [localStream, setLocalStream] = useState(null);
   const [remoteStreams, setRemoteStreams] = useState({});
   const peersRef = useRef({});
+  
   const [videoOn, setVideoOn] = useState(true);
   const [audioOn, setAudioOn] = useState(true);
 
   useEffect(() => {
     if (!socket) return;
 
+    // 1) Get local camera & mic
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(stream => setLocalStream(stream))
-      .catch(err => console.error('Media Error:', err));
+      .then(stream => {
+        setLocalStream(stream);
+      })
+      .catch(err => console.error('[WebRTC] Media Error:', err));
 
+    // 2) Listen for server events
     const handleOffer = async ({ fromSocketId, offer }) => {
       const pc = createOrGetPeerConnection(fromSocketId);
       await pc.setRemoteDescription(offer);
@@ -39,14 +44,30 @@ function WebRTCSection({ socket, roomId }) {
     };
     socket.on('webrtcIceCandidate', handleCandidate);
 
+    // If a new user joined the call, create an Offer
+    const handleUserJoinedCall = (fromSocketId) => {
+      createOfferForNewUser(fromSocketId);
+    };
+    socket.on('user-joined-call', handleUserJoinedCall);
+
     return () => {
       socket.off('webrtcOffer', handleOffer);
       socket.off('webrtcAnswer', handleAnswer);
       socket.off('webrtcIceCandidate', handleCandidate);
+      socket.off('user-joined-call', handleUserJoinedCall);
+
       Object.values(peersRef.current).forEach(pc => pc.close());
     };
   }, [socket]);
 
+  // 3) Once local stream is ready, auto join the call
+  useEffect(() => {
+    if (localStream && socket) {
+      socket.emit('join-call', roomId);
+    }
+  }, [localStream, socket, roomId]);
+
+  // Keep track of local stream changes (mute/unmute) in all PCs
   useEffect(() => {
     if (!localStream) return;
     for (let pc of Object.values(peersRef.current)) {
@@ -55,13 +76,15 @@ function WebRTCSection({ socket, roomId }) {
     }
   }, [localStream]);
 
+  // Helper: either retrieve or create a new RTCPeerConnection
   const createOrGetPeerConnection = (remoteId) => {
     let pc = peersRef.current[remoteId];
     if (pc) return pc;
 
     pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
     });
+
     if (localStream) {
       localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
     }
@@ -83,10 +106,19 @@ function WebRTCSection({ socket, roomId }) {
     return pc;
   };
 
-  const callEveryone = () => {
-    alert("In a real app, you'd call each participant. This is just a demonstration!");
+  // Called when a new user is announced by server => we create an offer
+  const createOfferForNewUser = async (remoteId) => {
+    const pc = createOrGetPeerConnection(remoteId);
+    try {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      socket.emit('webrtcOffer', { toSocketId: remoteId, offer });
+    } catch (err) {
+      console.error('[WebRTC] createOffer error:', err);
+    }
   };
 
+  // Toggles
   const toggleVideo = () => {
     if (!localStream) return;
     const newState = !videoOn;
@@ -107,22 +139,22 @@ function WebRTCSection({ socket, roomId }) {
 
   return (
     <div className="webrtc-section">
-      <h3>Live Video Chat</h3>
+      <div className="video-thumbnails">
+        {/* Local thumbnail */}
+        {localStream && (
+          <video
+            className="user-video"
+            ref={(ref) => { if (ref) ref.srcObject = localStream; }}
+            autoPlay
+            muted
+          />
+        )}
 
-      {localStream && (
-        <video
-          className="local-video"
-          ref={ref => { if (ref) ref.srcObject = localStream; }}
-          autoPlay
-          muted
-        />
-      )}
-
-      <div className="video-grid">
+        {/* Remote thumbnails */}
         {Object.entries(remoteStreams).map(([id, stream]) => (
           <video
             key={id}
-            className="remote-video"
+            className="user-video"
             autoPlay
             ref={ref => { if (ref) ref.srcObject = stream; }}
           />
@@ -130,9 +162,6 @@ function WebRTCSection({ socket, roomId }) {
       </div>
 
       <div className="webrtc-controls">
-        <button className="glass-button" onClick={callEveryone}>
-          Call Everyone (Demo)
-        </button>
         <button className="glass-button" onClick={toggleVideo}>
           {videoOn ? 'Video Off' : 'Video On'}
         </button>

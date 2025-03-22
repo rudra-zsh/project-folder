@@ -106,7 +106,7 @@ function VideoPlayer({ socket, roomId }) {
         </video>
       )}
 
-      <br/><br/><br/>
+      
 
       <input
         type="file"

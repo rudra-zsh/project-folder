@@ -1,6 +1,6 @@
-/**************************************************************
-  FONT & BASIC RESET
-***************************************************************/
+/************************************************************
+  1) BASIC RESET & FONTS
+*************************************************************/
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 * {
@@ -11,28 +11,22 @@
   transition: all 0.3s ease;
 }
 
-/**************************************************************
-  BODY & GLOBAL BACKGROUND
-***************************************************************/
-/* Tailwind partials for gradient animations */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/************************************************************
+  2) BACKGROUND & GLOBAL
+*************************************************************/
 body {
   margin: 0;
   padding: 0;
   overflow: auto;
-  /* Gradient background (slowly moves): */
   background: linear-gradient(-45deg, #0000, #15156b, #00001a, #003516, #00071f, #030926, #01012e, #2e0000, #000000, #000000);
   background-size: 400% 400%;
   animation: gradientAnimation 1200s ease infinite;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
 }
 
 html::-webkit-scrollbar, 
 body::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+  display: none;
 }
 
 @keyframes gradientAnimation {
@@ -41,9 +35,9 @@ body::-webkit-scrollbar {
   100% { background-position: 0% 50%; }
 }
 
-/**************************************************************
-  GLASS BUTTON
-***************************************************************/
+/************************************************************
+  3) GLASS BUTTON
+*************************************************************/
 .glass-button {
   display: inline-block;
   padding: 12px 25px;
@@ -65,9 +59,9 @@ body::-webkit-scrollbar {
   background: rgba(255,255,255,0.35);
 }
 
-/**************************************************************
-  LOADING SCREEN 
-***************************************************************/
+/************************************************************
+  4) LOADING SCREEN
+*************************************************************/
 .loading-screen {
   position: fixed;
   inset: 0;
@@ -87,9 +81,7 @@ body::-webkit-scrollbar {
   border-radius: 50%;
   animation: spin 1.2s linear infinite;
   margin-bottom: 20px;
-  transform: perspective(800px) translateZ(0) rotateX(0deg);
 }
-
 @keyframes spin {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -102,32 +94,14 @@ body::-webkit-scrollbar {
   text-shadow: 0 0 10px rgba(255,255,255,0.5);
   animation: pulseText 1.5s infinite;
 }
-
 @keyframes pulseText {
   0%,100% { opacity: 0.6; }
   50%     { opacity: 1;   }
 }
 
-/**************************************************************
-  APP CONTAINER
-***************************************************************/
-.app-container {
-  margin: 0 auto;
-  padding: 30px;
-  color: #fff;
-  overflow-y: auto;
-}
-.app-container ::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
-}
-
-h1, h2, h3 {
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-}
-
-/**************************************************************
-  HOME PAGE 
-***************************************************************/
+/************************************************************
+  5) HOME PAGE
+*************************************************************/
 .home-page {
   display: flex;
   flex-direction: column;
@@ -165,102 +139,104 @@ h1, h2, h3 {
   color: rgba(255,255,255,0.8);
 }
 
-/**************************************************************
-  ROOM PAGE
-***************************************************************/
+/************************************************************
+  6) ROOM PAGE LAYOUT
+*************************************************************/
 .room-page {
-  margin-top: 0px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  width: 100%;
+  padding: 20px;
 }
 
-.room-page h2 {
+.room-header {
   margin-bottom: 20px;
-  font-size: 2rem;
 }
 
-/* Container holding video area & chat side by side */
-.video-chat-container {
+/* Main layout: left "video-area" & right "chat-area" */
+.main-layout {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  max-width: 100%;
   gap: 20px;
 }
 
-/**************************************************************
-  VIDEO CONTAINER 
-***************************************************************/
-.video-container {
-  flex: 2; /* 2/3 of available space */
-  border-radius: 15px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-  padding: 20px;
-  position: relative;
-  transition: background 0.7s ease;
-  /* Removed fixed width and height to avoid overlap */
-  width: 100%;
-  min-height: 60vh;
+.video-area {
+  flex: 2; 
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/**************************************************************
-  VIDEO PLAYER 
-***************************************************************/
-.video-player {
-  border-radius: 15px;
-  border: 1px solid rgba(255,255,255,0.2);
+/* The row of small user videos on top (thumbnails) */
+.top-thumbnails {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+/* The main big video area (synced video player) */
+.big-video {
   background: rgba(255,255,255,0.05);
-  padding: 20px;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-  width: 100%;       /* Use all available container width */
-  height: auto;      /* Let height grow naturally */
-  margin-top: 0;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.video-player h3 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
+/* Right side: chat panel */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.video-player p {
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-}
-
-.video-player video {
+/************************************************************
+  7) VIDEO PLAYER
+*************************************************************/
+.video-player {
   width: 100%;
-  height: 100%;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-radius: 10px;
-  box-shadow: 0 0 100px rgb(0, 0, 0);
-  animation: changeShadow 1800s infinite linear;
-  align-content: center;
+  /* We removed extra <br/> spacing in the JSX 
+     so the controls appear right below the video. */
 }
 
-/* Example color-changing shadow animation (commented out) */
-/*
-@keyframes changeShadow {
-  0% {
-    box-shadow: 0 0 100px rgba(255, 0, 0, 0.7);
-  }
-  10% {
-    box-shadow: 0 0 100px rgba(255, 127, 0, 0.7);
-  }
-  ...
-  100% {
-    box-shadow: 0 0 100px rgba(255, 0, 0, 0.7);
-  }
+/************************************************************
+  8) WEBRTC SECTION
+*************************************************************/
+.webrtc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-*/
 
-/**************************************************************
-  CHAT SECTION 
-***************************************************************/
+.video-thumbnails {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Each user video (local/remote) for thumbnails */
+.user-video {
+  width: 120px;
+  height: 80px;
+  background: #000;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.webrtc-controls {
+  display: flex;
+  gap: 8px;
+}
+
+/************************************************************
+  9) CHAT SECTION
+*************************************************************/
 .chat-section {
-  flex: 1; /* 1/3 of available space */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -270,8 +246,11 @@ h1, h2, h3 {
   border: 1px solid rgba(255,255,255,0.2);
   padding: 20px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-  min-height: 50vh;
-  width: auto; /* Removed 120% so it doesn't overflow. */
+
+  /* Increased to be taller, like your design */
+  min-height: 70vh;
+
+  width: 100%;
 }
 
 .chat-section h3 {
@@ -288,10 +267,8 @@ h1, h2, h3 {
   padding: 10px;
   box-shadow: inset 0 5px 15px rgba(0,0,0,0.4);
   margin-bottom: 10px;
-  position: relative;
 }
 
-/* iMessage-like bubbles on left */
 .message {
   display: flex;
   background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
@@ -299,7 +276,7 @@ h1, h2, h3 {
   padding: 10px 15px;
   border-radius: 20px;
   margin: 5px 0;
-  max-width: 50vw;
+  max-width: 70%;
   word-break: break-word;
   animation: fadeInBubble 0.3s ease forwards;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -336,18 +313,24 @@ h1, h2, h3 {
   outline: none;
 }
 
-/**************************************************************
-  MEDIA QUERIES
-***************************************************************/
+/************************************************************
+  10) MEDIA QUERIES (Responsive)
+*************************************************************/
 @media (max-width: 992px) {
-  .video-chat-container {
+  .main-layout {
     flex-direction: column;
   }
-  
-  .video-container,
-  .chat-section {
+  .video-area,
+  .chat-area {
     width: 100%;
     margin-bottom: 20px;
+  }
+  .user-video {
+    width: 100px;
+    height: 70px;
+  }
+  .message {
+    max-width: 100%;
   }
 }
 
@@ -355,17 +338,11 @@ h1, h2, h3 {
   .home-form input {
     width: 220px;
   }
-  
-  .video-player p {
-    font-size: 0.8rem;
+  .user-video {
+    width: 80px;
+    height: 50px;
   }
-}
-
-/**************************************************************
-  EXTRA ANIMATIONS
-***************************************************************/
-@keyframes pulse {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  .messages {
+    font-size: 0.9rem;
+  }
 }
