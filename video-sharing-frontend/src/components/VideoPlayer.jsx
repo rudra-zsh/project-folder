@@ -84,6 +84,7 @@ function VideoPlayer({ socket, roomId }) {
     }
   };
 
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -100,6 +101,8 @@ function VideoPlayer({ socket, roomId }) {
           width="100%"
           controls
           onSeeked={handleSeeked}
+          onPlay={handlePlay}
+          onPause={handlePause}
         >
           <source src={videoSrc} type="video/mp4" />
           Your browser does not support HTML5 video.

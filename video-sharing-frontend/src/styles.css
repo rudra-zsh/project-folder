@@ -246,9 +246,10 @@ body::-webkit-scrollbar {
   border: 1px solid rgba(255,255,255,0.2);
   padding: 20px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-
+  overflow-y:auto;
   /* Increased to be taller, like your design */
   min-height: 70vh;
+  max-height: 70vh;
 
   width: 100%;
 }
@@ -260,7 +261,7 @@ body::-webkit-scrollbar {
 
 .messages {
   flex: 1;
-  overflow-y: auto;
+  overflow-y:auto;
   border: 2px solid rgba(255,255,255,0.2);
   background: rgba(255,255,255,0.04);
   border-radius: 10px;
@@ -270,6 +271,7 @@ body::-webkit-scrollbar {
 }
 
 .message {
+  overflow-y:auto;
   display: flex;
   background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
   color: #333;
