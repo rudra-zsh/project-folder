@@ -31,8 +31,8 @@ function Room() {
   useEffect(() => {
     // Create or reuse the socket
     if (!socket) {
-      //socket = io('https://piquant-sneaky-acoustic.glitch.me', {
-      socket = io('http://localhost:4000', {
+      socket = io('https://piquant-sneaky-acoustic.glitch.me', {
+      //socket = io('http://localhost:4000', {
         transports: ['websocket'],
         pingTimeout: 1800000,
         pingInterval: 25000,
