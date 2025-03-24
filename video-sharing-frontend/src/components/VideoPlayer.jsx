@@ -78,16 +78,19 @@ function VideoPlayer({ socket, roomId }) {
     const newTime = videoEl.currentTime;
     const diff = Math.abs(newTime - lastSeekEmittedRef.current);
     
-    if (diff > 3) {
+    if (diff > 2) {
       videoEl.pause();
-      socket.emit('video:seek', { roomId, currentTime: newTime });
-      lastSeekEmittedRef.current = newTime;
       
+      socket.emit('video:seek', { roomId, currentTime: newTime });
+      
+      setTimeout(() => {
+        lastSeekEmittedRef.current = newTime;  
+      }, 1000);
+      //lastSeekEmittedRef.current = newTime;
     } else {
-      console.log('[DEBUG - VideoPlayer] onSeeked called, diff < 5s, skipping emit');
+      console.log('[DEBUG - VideoPlayer] onSeeked called, diff < 2s, skipping emit');
     }
   };
-
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -106,7 +109,7 @@ function VideoPlayer({ socket, roomId }) {
           controls
           onSeeked={handleSeeked}
           onPlay={handlePlay}
-          onPause={handlePause}
+          onPause={handlePause} 
         >
           <source src={videoSrc} type="video/mp4" />
           Your browser does not support HTML5 video.
@@ -135,3 +138,4 @@ function VideoPlayer({ socket, roomId }) {
 }
 
 export default VideoPlayer;
+//working fine
