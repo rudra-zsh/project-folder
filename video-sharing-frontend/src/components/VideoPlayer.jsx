@@ -71,16 +71,20 @@ function VideoPlayer({ socket, roomId }) {
   };
 
   const handleSeeked = () => {
+    
     const videoEl = videoRef.current;
     if (!videoEl || !socket) return;
 
     const newTime = videoEl.currentTime;
     const diff = Math.abs(newTime - lastSeekEmittedRef.current);
-    if (diff > 0.2) {
+    
+    if (diff > 3) {
+      videoEl.pause();
       socket.emit('video:seek', { roomId, currentTime: newTime });
       lastSeekEmittedRef.current = newTime;
+      
     } else {
-      console.log('[DEBUG - VideoPlayer] onSeeked called, diff < 0.2s, skipping emit');
+      console.log('[DEBUG - VideoPlayer] onSeeked called, diff < 5s, skipping emit');
     }
   };
 
@@ -109,7 +113,6 @@ function VideoPlayer({ socket, roomId }) {
         </video>
       )}
 
-      
 
       <input
         type="file"

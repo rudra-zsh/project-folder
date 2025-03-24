@@ -348,3 +348,64 @@ body::-webkit-scrollbar {
     font-size: 0.9rem;
   }
 }
+/* Overlay to darken the background when the pop-up is active */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+  backdrop-filter: blur(5px); /* Optional: Adds a blur effect to the background */
+  z-index: 9998; /* Below the pop-up but above everything else */
+  animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Pop-up container for join requests */
+.join-requests-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 9999; /* on top of everything */
+}
+
+.join-request-popup {
+  background: linear-gradient(-45deg, #0000, #15156b, #00001a, #003516, #00071f, #030926, #01012e, #2e0000, #000000, #000000);
+  background-size: 400% 400%;
+  animation: gradientAnimation 1200s ease infinite;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: #fff;
+  width: 250px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  backdrop-filter: blur(8px); /* Optional: Adds a blur effect to match the glass-like design */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Optional: Adds a subtle border */
+}
+/* Smooth fade/slide in */
+@keyframes fadeInPopup {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.join-request-popup p {
+  margin: 5px 0;
+  font-size: 0.95rem;
+}
+
+.join-request-popup strong {
+  font-weight: 600;
+}
+
+.join-request-popup button {
+  margin: 5px;
+
+}
