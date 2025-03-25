@@ -20,11 +20,15 @@ function doJoin(roomId, sock) {
   sock.data.roomId = roomId;
   sock.join(roomId);
 
-  console.log(`[DEBUG] ${sock.username} joined room: ${roomId}`);
+  console.log(`[DEBUG] ${sock.username} is now allowed and joined: ${roomId}`);
+
+  // Notify existing members
   sock.to(roomId).emit('roomMessage', {
     username: sock.username,
     message: 'has joined the room'
   });
+
+  // Tell the new user they are approved
   sock.emit('joinApproved');
 }
 
@@ -43,16 +47,12 @@ function countApprovedUsersInRoom(roomId, io) {
   return approvedCount;
 }
 
-// For "seek-then-sync" states: 
-// syncStates[roomId] = { finalTime, ackSet: Set<socketIds> }
-const syncStates = {};
-
 io.on('connection', (socket) => {
   console.log('[DEBUG] New client connected:', socket.id);
 
-  // Default placeholder
+  // Default placeholder name
   socket.username = `user-${socket.id.slice(0, 3)}`;
-  socket.data.isApproved = false;
+  socket.data.isApproved = false; // remains false until doJoin is called
 
   // The client can update their name
   socket.on('updateUsername', ({ username }) => {
@@ -60,14 +60,21 @@ io.on('connection', (socket) => {
     console.log(`[DEBUG] Updated username: ${socket.id} -> ${username}`);
   });
 
-  // ============== JOIN ROOM (ACCEPT/DENY) ==============
+  /**
+   * Attempt to join a room => see how many are "approved."
+   *  - If zero => auto-approve
+   *  - If >=1 => broadcast "joinRequest" to all *approved* members
+   */
   socket.on('joinRoom', (roomId) => {
     socket.data.requestedRoom = roomId;
+
     const approvedCount = countApprovedUsersInRoom(roomId, io);
     if (approvedCount === 0) {
+      // No approved user => auto-approve
       doJoin(roomId, socket);
     } else {
       console.log(`[DEBUG] Broadcasting joinRequest for ${socket.username} to room ${roomId}`);
+      // Broadcast only to approved members
       const members = io.sockets.adapter.rooms.get(roomId) || [];
       for (const sockId of members) {
         const s = io.sockets.sockets.get(sockId);
@@ -81,73 +88,64 @@ io.on('connection', (socket) => {
     }
   });
 
+  /**
+   * If an existing user approves => doJoin
+   * If user was already approved or denied, ignore it
+   */
   socket.on('approveJoin', ({ newUserId }) => {
     const newSock = io.sockets.sockets.get(newUserId);
     if (!newSock) return;
-    if (newSock.data.isApproved) return;
+
+    // If they're already approved or left, ignore
+    if (newSock.data.isApproved) {
+      console.log(`[DEBUG] approveJoin ignored; user already approved.`);
+      return;
+    }
     const { requestedRoom } = newSock.data;
-    if (!requestedRoom) return;
+    if (!requestedRoom) {
+      console.log(`[DEBUG] approveJoin ignored; no requestedRoom.`);
+      return;
+    }
+
     doJoin(requestedRoom, newSock);
   });
 
+  /**
+   * If an existing user denies => send "joinDenied."
+   * If user was approved or left, ignore
+   */
   socket.on('denyJoin', ({ newUserId }) => {
     const newSock = io.sockets.sockets.get(newUserId);
     if (!newSock) return;
-    if (newSock.data.isApproved) return;
+    if (newSock.data.isApproved) {
+      console.log(`[DEBUG] denyJoin ignored; user is already approved.`);
+      return;
+    }
+    // They remain connected, but never joined. Let them handle on client side
     newSock.emit('joinDenied');
   });
 
-  // ============== CHAT ==============
+  // Chat
   socket.on('chatMessage', ({ roomId, message }) => {
     io.to(roomId).emit('roomMessage', { username: socket.username, message });
   });
 
-  // ============== VIDEO SYNC (Play/Pause) ==============
-  // We simply broadcast these events to everyone else in the room
+  // Video Sync
   socket.on('video:play', ({ roomId, currentTime }) => {
     socket.to(roomId).emit('video:play', { currentTime });
   });
-
   socket.on('video:pause', ({ roomId, currentTime }) => {
     socket.to(roomId).emit('video:pause', { currentTime });
   });
-
-  // ============== SEEK-THEN-SYNC ==============
   socket.on('video:seek', ({ roomId, currentTime }) => {
-    console.log(`[DEBUG] video:seek => room=${roomId}, finalTime=${currentTime}`);
-    const members = io.sockets.adapter.rooms.get(roomId) || new Set();
-    const ackSet = new Set(members);
-
-    syncStates[roomId] = { finalTime: currentTime, ackSet };
-    // broadcast "video:seekAll"
-    socket.to(roomId).emit('video:seekAll', { currentTime });
+    socket.to(roomId).emit('video:seek', { currentTime });
   });
 
-  socket.on('video:seekAck', ({ roomId }) => {
-    const state = syncStates[roomId];
-    if (!state) return;
-    console.log(`[DEBUG] video:seekAck from ${socket.id} in room=${roomId}`);
-    state.ackSet.delete(socket.id);
-    if (state.ackSet.size === 0) {
-      console.log('[DEBUG] All acked => video:seekResume');
-      io.in(roomId).emit('video:seekResume');
-      delete syncStates[roomId];
-    }
-  });
-
-  // ============== DISCONNECT ==============
+  // Disconnect
   socket.on('disconnect', (reason) => {
-    console.log(`[DEBUG] Client disconnected: ${socket.id}, reason=${reason}`);
-    const roomId = socket.data.roomId;
-    if (roomId && syncStates[roomId]) {
-      syncStates[roomId].ackSet.delete(socket.id);
-      if (syncStates[roomId].ackSet.size === 0) {
-        io.in(roomId).emit('video:seekResume');
-        delete syncStates[roomId];
-      }
-    }
-    if (socket.data.isApproved) {
-      socket.to(roomId).emit('roomMessage', {
+    console.log(`[DEBUG] Client disconnected: ${socket.id} Reason: ${reason}`);
+    if (socket.data.roomId && socket.data.isApproved) {
+      socket.to(socket.data.roomId).emit('roomMessage', {
         username: socket.username,
         message: 'has left the room'
       });

@@ -59,6 +59,24 @@ body::-webkit-scrollbar {
   background: rgba(255,255,255,0.35);
 }
 
+.leave-button-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Red-glass button variation */
+.red-glass {
+  background: rgba(255, 0, 0, 0.3);
+  border: 1px solid rgba(255, 0, 0, 0.4);
+}
+
+.red-glass:hover {
+  background: rgba(255, 0, 0, 0.5);
+  transform: translateZ(15px) rotateX(5deg);
+}
+
 /************************************************************
   4) LOADING SCREEN
 *************************************************************/
@@ -270,19 +288,33 @@ body::-webkit-scrollbar {
   margin-bottom: 10px;
 }
 
+
 .message {
-  overflow-y:auto;
-  display: flex;
+  display: block;            /* each message is its own block */
   background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
   color: #333;
   padding: 10px 15px;
   border-radius: 20px;
   margin: 5px 0;
-  max-width: 70%;
+  width: 70%;            /* narrower bubble for a more "chat-like" look */
   word-break: break-word;
   animation: fadeInBubble 0.3s ease forwards;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
+
+/* Align your own messages to the right */
+.message.own {
+  margin-left: auto;         /* push it to the right */
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  text-align: right;
+}
+
+/* Align others' messages to the left */
+.message.other {
+  margin-right: auto;        /* push it to the left */
+  text-align: left;
+}
+
 
 @keyframes fadeInBubble {
   from { opacity: 0; transform: translateY(5px); }
@@ -409,5 +441,72 @@ body::-webkit-scrollbar {
 .join-request-popup button {
   margin: 5px;
 
+}
+
+/* 1) Make sure your .chat-input container is still a flex row */
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+/* 2) Style the new textarea similarly to your existing input */
+.chat-input .chat-textarea {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  outline: none;
+  resize: none;       /* prevents manual resizing */
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  min-height: 40px;   /* ensures a minimal visible height */
+  max-height: 120px;  /* caps the textarea growth */
+  overflow-y: auto;   /* scroll if it gets too tall */
+}
+
+/* 3) Optionally tweak placeholder styling */
+.chat-input .chat-textarea::placeholder {
+  color: rgba(255,255,255,0.8);
+}
+
+.join-requests-queue {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  color: white;
+}
+
+.join-requests-queue h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding-bottom: 5px;
+}
+
+.join-request-item {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+}
+
+.join-request-item p {
+  margin: 0 0 8px;
+}
+
+.join-request-item .countdown {
+  color: #ffb3b3;
+  font-weight: bold;
+}
+
+.request-buttons {
+  display: flex;
 }
 
