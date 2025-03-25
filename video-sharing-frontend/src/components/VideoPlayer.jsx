@@ -4,23 +4,22 @@ function VideoPlayer({ socket, roomId }) {
   const videoRef = useRef(null);
   const lastSeekEmittedRef = useRef(0);
   const [videoSrc, setVideoSrc] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!socket) return;
 
     const handleRemotePlay = ({ currentTime }) => {
-      console.log('[DEBUG - VideoPlayer] Received video:play, time=', currentTime);
       const videoEl = videoRef.current;
       if (videoEl) {
         videoEl.currentTime = currentTime;
         if (videoEl.paused) {
-          videoEl.play().catch(err => console.error('[DEBUG] play() error:', err));
+          videoEl.play().catch(err => console.error('play() error:', err));
         }
       }
     };
 
     const handleRemotePause = ({ currentTime }) => {
-      console.log('[DEBUG - VideoPlayer] Received video:pause, time=', currentTime);
       const videoEl = videoRef.current;
       if (videoEl && !videoEl.paused) {
         videoEl.currentTime = currentTime;
@@ -29,7 +28,6 @@ function VideoPlayer({ socket, roomId }) {
     };
 
     const handleRemoteSeek = ({ currentTime }) => {
-      console.log('[DEBUG - VideoPlayer] Received video:seek, time=', currentTime);
       const videoEl = videoRef.current;
       if (videoEl) {
         videoEl.currentTime = currentTime;
@@ -52,7 +50,7 @@ function VideoPlayer({ socket, roomId }) {
     const videoEl = videoRef.current;
     if (!videoEl || !socket) return;
     socket.emit('video:play', { roomId, currentTime: videoEl.currentTime });
-    videoEl.play().catch(err => console.error('[DEBUG] local play() error:', err));
+    videoEl.play().catch(err => console.error('local play() error:', err));
   };
 
   const handlePause = () => {
@@ -70,6 +68,14 @@ function VideoPlayer({ socket, roomId }) {
     lastSeekEmittedRef.current = videoEl.currentTime;
   };
 
+  const handleRestart = () => {
+    const videoEl = videoRef.current;
+    if (!videoEl || !socket) return;
+    videoEl.currentTime = 0;
+    socket.emit('video:seek', { roomId, currentTime: 0 });
+    lastSeekEmittedRef.current = 0;
+  };
+
   const handleSeeked = () => {
     const videoEl = videoRef.current;
     if (!videoEl || !socket) return;
@@ -77,15 +83,12 @@ function VideoPlayer({ socket, roomId }) {
     const newTime = videoEl.currentTime;
     const diff = Math.abs(newTime - lastSeekEmittedRef.current);
     if (diff > 0.2) {
-      videoEl.pause();
+      //videoEl.pause();
       socket.emit('video:seek', { roomId, currentTime: newTime });
-      
+
       setTimeout(() => {
-        lastSeekEmittedRef.current = newTime;  
+        lastSeekEmittedRef.current = newTime;
       }, 1000);
-      //lastSeekEmittedRef.current = newTime;
-    } else {
-      console.log('[DEBUG - VideoPlayer] onSeeked called, diff < 0.2s, skipping emit');
     }
   };
 
@@ -97,6 +100,10 @@ function VideoPlayer({ socket, roomId }) {
     }
   };
 
+  const triggerFileSelect = () => {
+    fileInputRef.current.click();
+  };
+
   return (
     <div className="video-player">
       {videoSrc && (
@@ -104,36 +111,53 @@ function VideoPlayer({ socket, roomId }) {
           ref={videoRef}
           width="100%"
           controls
-          onSeeked={handleSeeked}
+          onSeeked={handleSeeked}/*
           onPlay={handlePlay}
-          onPause={handlePause} 
+          onPause={handlePause}
+            */
         >
           <source src={videoSrc} type="video/mp4" />
           Your browser does not support HTML5 video.
         </video>
       )}
 
-      
-
-      <input
-        type="file"
-        accept="video/*"
-        onChange={handleFileChange}
-      />
-
       <div style={{ marginTop: '15px' }}>
-        <button className="glass-button" onClick={handlePlay}>Play</button>
-        <button className="glass-button" onClick={handlePause} style={{ marginLeft: '10px' }}>Pause</button>
+        {/* Smaller select file button placed above */}
+        <button
+          className="glass-button"
+          onClick={triggerFileSelect}
+          style={{ marginBottom: '10px', padding: '6px 12px', fontSize: '0.8rem' }}
+        >
+          Select File
+        </button>
+        <br />
+
+        <button className="glass-button" onClick={() => handleSkip(-10)}>
+          Backward 10s
+        </button>
+        <button className="glass-button" onClick={handlePlay} style={{ marginLeft: '10px' }}>
+          Play
+        </button>
+        <button className="glass-button" onClick={handlePause} style={{ marginLeft: '10px' }}>
+          Pause
+        </button>
         <button className="glass-button" onClick={() => handleSkip(10)} style={{ marginLeft: '10px' }}>
           Forward 10s
         </button>
-        <button className="glass-button" onClick={() => handleSkip(-10)} style={{ marginLeft: '10px' }}>
-          Backward 10s
+        <button className="glass-button" onClick={handleRestart} style={{ marginLeft: '10px' }}>
+          Restart
         </button>
+
+        <input
+          type="file"
+          accept="video/*"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
       </div>
     </div>
   );
 }
 
 export default VideoPlayer;
-//working fine
