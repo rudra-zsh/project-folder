@@ -77,16 +77,13 @@ function VideoPlayer({ socket, roomId }) {
   };
 
   const handleSeeked = () => {
-    
     const videoEl = videoRef.current;
     if (!videoEl || !socket) return;
 
     const newTime = videoEl.currentTime;
     const diff = Math.abs(newTime - lastSeekEmittedRef.current);
-    
-    if (diff > 2) {
-      videoEl.pause();
-      
+    if (diff > 0.2) {
+      //videoEl.pause();
       socket.emit('video:seek', { roomId, currentTime: newTime });
 
       setTimeout(() => {
@@ -114,21 +111,15 @@ function VideoPlayer({ socket, roomId }) {
           ref={videoRef}
           width="100%"
           controls
-          onSeeked={handleSeeked}
+          onSeeked={handleSeeked}/*
           onPlay={handlePlay}
           onPause={handlePause}
+            */
         >
           <source src={videoSrc} type="video/mp4" />
           Your browser does not support HTML5 video.
         </video>
       )}
-
-
-      <input
-        type="file"
-        accept="video/*"
-        onChange={handleFileChange}
-      />
 
       <div style={{ marginTop: '15px' }}>
         {/* Smaller select file button placed above */}

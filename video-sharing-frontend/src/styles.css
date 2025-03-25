@@ -380,6 +380,7 @@ body::-webkit-scrollbar {
     font-size: 0.9rem;
   }
 }
+
 /* Overlay to darken the background when the pop-up is active */
 .overlay {
   position: fixed;
@@ -508,3 +509,4 @@ body::-webkit-scrollbar {
 .request-buttons {
   display: flex;
 }
+
