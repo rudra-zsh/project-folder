@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
 // Create or reuse your global socket
-  //const socket = io('https://piquant-sneaky-acoustic.glitch.me', {
-  const socket = io('http://localhost:4000', {
+  const socket = io('https://piquant-sneaky-acoustic.glitch.me', {
+  //const socket = io('http://localhost:4000', {
   transports: ['websocket'],
   pingTimeout: 1800000,
   pingInterval: 25000,
