@@ -1,47 +1,41 @@
 import React, { useRef, useEffect, useState } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import 'videojs-youtube'; // <-- Important import to enable YouTube support
 
-/**
- * VideoPlayer component
- *  - Uses Video.js for the player with native controls
- *  - Syncs play/pause/seek events via Socket.IO
- */
 function VideoPlayer({ socket, roomId }) {
-  // --------------------------------------------------
-  // Refs
-  // --------------------------------------------------
-  const videoNodeRef = useRef(null); // Points to the actual <video> DOM node
-  const playerRef = useRef(null);    // The Video.js player instance
-  const fileInputRef = useRef(null); // <input type="file">
+  // References
+  const videoNodeRef = useRef(null); // <video> element
+  const playerRef = useRef(null);    // Video.js player instance
+  const fileInputRef = useRef(null); // For selecting local files
 
-  // So we can block re-emitting if the event came remotely
+  // Prevent local <-> remote event loops
   const isRemoteActionRef = useRef(false);
 
-  // --------------------------------------------------
-  // State
-  // --------------------------------------------------
-  // We'll store the current video source in state
-  const [videoSrc, setVideoSrc] = useState(null);
+  // Store your current video source and link input
+  const [videoSrc, setVideoSrc] = useState(null); // { src: ..., type: ... }
+  const [videoLink, setVideoLink] = useState('');
 
-  // --------------------------------------------------
-  // 1) Create & Dispose the Video.js player (once)
-  // --------------------------------------------------
+  // Small threshold (in seconds) to ignore minor differences in currentTime
+  const SYNC_THRESHOLD = 3;
+
+  // ------------------------------------------------------------------
+  // A) Create / Dispose the Video.js player exactly once
+  // ------------------------------------------------------------------
   useEffect(() => {
-    // Create the Video.js player once, when mounted
     if (!playerRef.current) {
-      // Initialize Video.js on our <video> element
+      // Create the Video.js player
       playerRef.current = videojs(videoNodeRef.current, {
-        controls: true, // Show native play/pause controls
+        controls: true, // show native controls
         autoplay: false,
-        fluid: true,    // Make it responsive
+        fluid: true,    // responsive sizing
       });
 
       // Attach local event listeners for sync
       attachLocalEventListeners(playerRef.current);
     }
 
-    // Clean up: dispose the player on unmount
+    // Cleanup on unmount
     return () => {
       if (playerRef.current) {
         playerRef.current.dispose();
@@ -50,22 +44,19 @@ function VideoPlayer({ socket, roomId }) {
     };
   }, []);
 
-  // --------------------------------------------------
-  // 2) Whenever "videoSrc" changes, update the player's source
-  // --------------------------------------------------
+  // ------------------------------------------------------------------
+  // B) Whenever "videoSrc" changes, update the player's source
+  // ------------------------------------------------------------------
   useEffect(() => {
     const player = playerRef.current;
-    if (player && videoSrc) {
-      player.src(videoSrc);
-    }
+    if (!player || !videoSrc) return;
+    player.src(videoSrc);
   }, [videoSrc]);
 
-  // --------------------------------------------------
-  // 3) Local Event Listeners on the Video.js player
-  //    to emit socket events
-  // --------------------------------------------------
+  // ------------------------------------------------------------------
+  // C) Local event listeners => emit
+  // ------------------------------------------------------------------
   function attachLocalEventListeners(player) {
-    // "play" fires when the user presses the native play button or hits spacebar, etc.
     player.on('play', () => {
       console.log('[LOCAL] play event');
       if (isRemoteActionRef.current) {
@@ -75,7 +66,6 @@ function VideoPlayer({ socket, roomId }) {
       emitVideoEvent('play', player.currentTime());
     });
 
-    // "pause" fires when the user presses the native pause button
     player.on('pause', () => {
       console.log('[LOCAL] pause event');
       if (isRemoteActionRef.current) {
@@ -85,7 +75,6 @@ function VideoPlayer({ socket, roomId }) {
       emitVideoEvent('pause', player.currentTime());
     });
 
-    // "seeked" fires when the user drags/clicks the timeline & releases
     player.on('seeked', () => {
       console.log('[LOCAL] seeked event');
       if (isRemoteActionRef.current) {
@@ -97,9 +86,9 @@ function VideoPlayer({ socket, roomId }) {
     });
   }
 
-  // --------------------------------------------------
-  // 4) Socket: Listen for remote play/pause/seek
-  // --------------------------------------------------
+  // ------------------------------------------------------------------
+  // D) Socket: Listen for REMOTE play / pause / seek
+  // ------------------------------------------------------------------
   useEffect(() => {
     if (!socket) return;
 
@@ -107,37 +96,62 @@ function VideoPlayer({ socket, roomId }) {
       console.log('[REMOTE] play ->', currentTime);
       const player = playerRef.current;
       if (!player) return;
-      isRemoteActionRef.current = true;
-      player.currentTime(currentTime);
-      player.play().catch(err => {
-        console.error('[REMOTE] play error:', err);
-        isRemoteActionRef.current = false;
-      });
+
+      // Compare local vs remote times
+      const diff = Math.abs(player.currentTime() - currentTime);
+      console.log('[REMOTE] time diff:', diff);
+
+      // If difference is big, we adjust
+      if (diff > SYNC_THRESHOLD) {
+        isRemoteActionRef.current = true;
+        player.currentTime(currentTime);
+      }
+
+      // If currently paused, ensure we actually play
+      if (player.paused()) {
+        isRemoteActionRef.current = true;
+        player.play().catch(err => {
+          console.error('[REMOTE] play() error:', err);
+          isRemoteActionRef.current = false;
+        });
+      }
     };
 
     const handleRemotePause = ({ currentTime }) => {
       console.log('[REMOTE] pause ->', currentTime);
       const player = playerRef.current;
       if (!player) return;
-      isRemoteActionRef.current = true;
-      player.currentTime(currentTime);
-      player.pause();
+
+      const diff = Math.abs(player.currentTime() - currentTime);
+      if (diff > SYNC_THRESHOLD) {
+        isRemoteActionRef.current = true;
+        player.currentTime(currentTime);
+      }
+
+      // If it’s playing, we pause
+      if (!player.paused()) {
+        isRemoteActionRef.current = true;
+        player.pause();
+      }
     };
 
     const handleRemoteSeek = ({ currentTime }) => {
       console.log('[REMOTE] seek ->', currentTime);
       const player = playerRef.current;
       if (!player) return;
-      isRemoteActionRef.current = true;
-      player.currentTime(currentTime);
+
+      const diff = Math.abs(player.currentTime() - currentTime);
+      if (diff > SYNC_THRESHOLD) {
+        isRemoteActionRef.current = true;
+        player.currentTime(currentTime);
+      }
     };
 
-    // Attach
+    // Attach these socket handlers
     socket.on('video:play', handleRemotePlay);
     socket.on('video:pause', handleRemotePause);
     socket.on('video:seek', handleRemoteSeek);
 
-    // Cleanup
     return () => {
       socket.off('video:play', handleRemotePlay);
       socket.off('video:pause', handleRemotePause);
@@ -145,18 +159,18 @@ function VideoPlayer({ socket, roomId }) {
     };
   }, [socket]);
 
-  // --------------------------------------------------
-  // 5) Helper to emit our local events to the server
-  // --------------------------------------------------
+  // ------------------------------------------------------------------
+  // E) Emit local events to server
+  // ------------------------------------------------------------------
   function emitVideoEvent(type, currentTime) {
     if (!socket) return;
     console.log(`[LOCAL] Emitting ${type} -> ${currentTime}`);
     socket.emit(`video:${type}`, { roomId, currentTime });
   }
 
-  // --------------------------------------------------
-  // 6) Additional manual controls (Skip, etc.)
-  // --------------------------------------------------
+  // ------------------------------------------------------------------
+  // F) Optional manual controls: skip/restart
+  // ------------------------------------------------------------------
   const handlePlay = () => {
     const player = playerRef.current;
     if (!player) return;
@@ -179,62 +193,94 @@ function VideoPlayer({ socket, roomId }) {
     isRemoteActionRef.current = false;
     const newTime = player.currentTime() + secs;
     player.currentTime(newTime);
-    // Programmatic changes won't emit "seeked" automatically
     emitVideoEvent('seek', newTime);
   };
 
   const handleRestart = () => {
     const player = playerRef.current;
     if (!player) return;
-    console.log('[LOCAL] restart video');
+    console.log('[LOCAL] Restarting video');
     isRemoteActionRef.current = false;
     player.currentTime(0);
     emitVideoEvent('seek', 0);
   };
 
-  // --------------------------------------------------
-  // 7) Local File Selection
-  // --------------------------------------------------
+  // ------------------------------------------------------------------
+  // G) Local File selection
+  // ------------------------------------------------------------------
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     console.log('[LOCAL] File Selected:', file.name);
     const url = URL.createObjectURL(file);
-    // Video.js expects an object like: { src: "...", type: "video/mp4" }
-    setVideoSrc({ src: url, type: 'video/mp4' });
+    setVideoSrc({ src: url, type: 'video/mp4' }); // typical local MP4
   };
 
-  const triggerFileSelect = () => {
-    fileInputRef.current?.click();
+  // ------------------------------------------------------------------
+  // H) Link selection (YouTube or direct MP4 link)
+  // ------------------------------------------------------------------
+  const handleVideoLink = () => {
+    // Basic detection
+    const linkLower = videoLink.toLowerCase();
+    if (linkLower.includes('youtube.com') || linkLower.includes('youtu.be')) {
+      // Use the videojs-youtube plugin
+      setVideoSrc({ src: videoLink, type: 'video/youtube' });
+    } else {
+      // Assume it's direct (MP4, etc.)
+      setVideoSrc({ src: videoLink, type: 'video/mp4' });
+    }
   };
 
-  // --------------------------------------------------
+  // ------------------------------------------------------------------
   // Render
-  // --------------------------------------------------
+  // ------------------------------------------------------------------
   return (
     <div className="video-player">
-      
-
-      {/* The container for the Video.js player */}
-      <div data-vjs-player style={{ marginBottom: '10px' }}>
+      {/* The container for Video.js */}
+      <div className="video-container" data-vjs-player>
         <video
           ref={videoNodeRef}
           className="video-js vjs-big-play-centered"
         />
       </div>
 
-      {/* Choose local file */}
       <div style={{ marginTop: '15px' }}>
-        {/* Smaller select file button placed above */}
+        {/* Local File Selection */}
         <button
           className="glass-button"
-          onClick={triggerFileSelect}
+          onClick={() => fileInputRef.current?.click()}
           style={{ marginBottom: '10px', padding: '6px 12px', fontSize: '0.8rem' }}
         >
-          Select File
+          Select Local File
         </button>
+        <input
+          type="file"
+          accept="video/*"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
         <br />
 
+        {/* Video Link Input */}
+        <input
+          type="text"
+          placeholder="Paste YouTube or direct video link"
+          value={videoLink}
+          onChange={(e) => setVideoLink(e.target.value)}
+          style={{ width: '60%', marginRight: '10px', marginTop: '10px' }}
+        />
+        <button
+          className="glass-button"
+          onClick={handleVideoLink}
+          style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+        >
+          Load Link
+        </button>
+      </div>
+
+      {/* Additional manual controls */}
+      <div style={{ marginTop: '15px' }}>
         <button className="glass-button" onClick={() => handleSkip(-10)}>
           Backward 10s
         </button>
@@ -250,14 +296,6 @@ function VideoPlayer({ socket, roomId }) {
         <button className="glass-button" onClick={handleRestart} style={{ marginLeft: '10px' }}>
           Restart
         </button>
-
-        <input
-          type="file"
-          accept="video/*"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          style={{ display: 'none' }}
-        />
       </div>
     </div>
   );
