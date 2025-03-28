@@ -474,9 +474,6 @@ function Room() {
 
       <div className="main-layout">
         <div className="video-area">
-          <div className="top-thumbnails">
-            <WebRTCSection socket={socket} roomId={roomId} />
-          </div>
           <div className="big-video">
             <VideoPlayer socket={socket} roomId={roomId} />
           </div>
