@@ -1,4 +1,10 @@
 /************************************************************
+  styles.css (UPDATED)
+  Includes the enlarged .user-video dimensions + hover overlay
+  Citation: :contentReference[oaicite:0]{index=0}
+************************************************************/
+
+/************************************************************
   1) BASIC RESET & FONTS
 *************************************************************/
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
@@ -18,17 +24,30 @@ body {
   margin: 0;
   padding: 0;
   overflow: auto;
-  background: linear-gradient(-45deg, #0000, #15156b, #00001a, #003516, #00071f, #030926, #01012e, #2e0000, #000000, #000000);
+  /* Dark Mode background gradient (default) */
+  background: linear-gradient(-45deg,
+    #0000,
+    #15156b,
+    #00001a,
+    #003516,
+    #00071f,
+    #030926,
+    #01012e,
+    #2e0000,
+    #000000,
+    #000000
+  );
   background-size: 400% 400%;
   animation: gradientAnimation 1200s ease infinite;
   scrollbar-width: none;
 }
 
-html::-webkit-scrollbar, 
+html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none;
 }
 
+/* Dark mode keyframes */
 @keyframes gradientAnimation {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
@@ -113,8 +132,8 @@ body::-webkit-scrollbar {
   animation: pulseText 1.5s infinite;
 }
 @keyframes pulseText {
-  0%,100% { opacity: 0.6; }
-  50%     { opacity: 1;   }
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
 }
 
 /************************************************************
@@ -179,7 +198,7 @@ body::-webkit-scrollbar {
 }
 
 .video-area {
-  flex: 2; 
+  flex: 2;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -217,8 +236,6 @@ body::-webkit-scrollbar {
 *************************************************************/
 .video-player {
   width: 100%;
-  /* We removed extra <br/> spacing in the JSX 
-     so the controls appear right below the video. */
 }
 
 /************************************************************
@@ -236,23 +253,82 @@ body::-webkit-scrollbar {
   flex-wrap: wrap;
 }
 
-/* Each user video (local/remote) for thumbnails */
+/* Larger .user-video dimensions (local & remote) */
 .user-video {
-  width: 120px;
-  height: 80px;
+  width: 240px; /* changed from 120px */
+  height: 160px; /* changed from 80px */
   background: #000;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
   object-fit: cover;
 }
 
+/* Old: webrtc-controls for separate button area (optional)
 .webrtc-controls {
   display: flex;
   gap: 8px;
 }
+*/
 
 /************************************************************
-  9) CHAT SECTION
+  9) HOVER CONTROLS OVER VIDEO
+*************************************************************/
+/* Container around each local/remote video for positioning the overlay */
+.user-video-container {
+  position: relative;
+  display: inline-block; /* allows .video-overlay to be absolutely placed */
+}
+
+/* The icons overlay that shows up on hover (for local video) */
+.video-overlay {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/*
+If you need controls for remote videos as well, uncomment & customize:
+.video-overlay-remote {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+*/
+
+/* Show overlays on hover */
+.user-video-container:hover .video-overlay,
+.user-video-container:hover .video-overlay-remote {
+  opacity: 1;
+}
+
+/* Example styling for icon buttons */
+.icon-button {
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: rgba(0,0,0,0.7);
+}
+
+/************************************************************
+  10) CHAT SECTION
 *************************************************************/
 .chat-section {
   display: flex;
@@ -264,11 +340,9 @@ body::-webkit-scrollbar {
   border: 1px solid rgba(255,255,255,0.2);
   padding: 20px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-  overflow-y:auto;
-  /* Increased to be taller, like your design */
+  overflow-y: auto;
   min-height: 70vh;
   max-height: 70vh;
-
   width: 100%;
 }
 
@@ -279,7 +353,7 @@ body::-webkit-scrollbar {
 
 .messages {
   flex: 1;
-  overflow-y:auto;
+  overflow-y: auto;
   border: 2px solid rgba(255,255,255,0.2);
   background: rgba(255,255,255,0.04);
   border-radius: 10px;
@@ -288,37 +362,33 @@ body::-webkit-scrollbar {
   margin-bottom: 10px;
 }
 
-
 .message {
-  display: block;            /* each message is its own block */
+  display: block;
   background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
   color: #333;
   padding: 10px 15px;
   border-radius: 20px;
   margin: 5px 0;
-  width: 70%;            /* narrower bubble for a more "chat-like" look */
+  width: 70%;
   word-break: break-word;
   animation: fadeInBubble 0.3s ease forwards;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* Align your own messages to the right */
 .message.own {
-  margin-left: auto;         /* push it to the right */
+  margin-left: auto;
   background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-  text-align: right;
-}
-
-/* Align others' messages to the left */
-.message.other {
-  margin-right: auto;        /* push it to the left */
   text-align: left;
 }
 
+.message.other {
+  margin-right: auto;
+  text-align: left;
+}
 
 @keyframes fadeInBubble {
   from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0);   }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .messages::-webkit-scrollbar {
@@ -337,7 +407,7 @@ body::-webkit-scrollbar {
   gap: 10px;
 }
 
-.chat-input input[type="text"] {
+.chat-input .chat-textarea {
   flex: 1;
   padding: 12px;
   border-radius: 8px;
@@ -345,60 +415,49 @@ body::-webkit-scrollbar {
   background: rgba(255,255,255,0.08);
   color: #fff;
   outline: none;
+  resize: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.chat-input .chat-textarea::placeholder {
+  color: rgba(255,255,255,0.8);
 }
 
 /************************************************************
-  10) MEDIA QUERIES (Responsive)
+  11) JOIN REQUEST QUEUE & NOTIFICATIONS
 *************************************************************/
-@media (max-width: 992px) {
-  .main-layout {
-    flex-direction: column;
-  }
-  .video-area,
-  .chat-area {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  .user-video {
-    width: 100px;
-    height: 70px;
-  }
-  .message {
-    max-width: 100%;
-  }
+.join-requests-queue {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  color: white;
 }
 
-@media (max-width: 600px) {
-  .home-form input {
-    width: 220px;
-  }
-  .user-video {
-    width: 80px;
-    height: 50px;
-  }
-  .messages {
-    font-size: 0.9rem;
-  }
+.join-requests-queue .join-request-item {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
 }
 
-/* Overlay to darken the background when the pop-up is active */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
-  backdrop-filter: blur(5px); /* Optional: Adds a blur effect to the background */
-  z-index: 9998; /* Below the pop-up but above everything else */
-  animation: fadeInOverlay 0.3s ease;
+.join-requests-queue .request-buttons {
+  display: flex;
 }
 
-@keyframes fadeInOverlay {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+.countdown {
+  color: #ffb3b3;
+  font-weight: bold;
 }
-/* Pop-up container for join requests */
+
+/* Temporary pop-ups for approvals/denials */
 .join-requests-container {
   position: fixed;
   top: 50%;
@@ -407,7 +466,7 @@ body::-webkit-scrollbar {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  z-index: 9999; /* on top of everything */
+  z-index: 9999;
 }
 
 .join-request-popup {
@@ -420,13 +479,8 @@ body::-webkit-scrollbar {
   width: 250px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   text-align: center;
-  backdrop-filter: blur(8px); /* Optional: Adds a blur effect to match the glass-like design */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Optional: Adds a subtle border */
-}
-/* Smooth fade/slide in */
-@keyframes fadeInPopup {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .join-request-popup p {
@@ -438,75 +492,158 @@ body::-webkit-scrollbar {
   font-weight: 600;
 }
 
-.join-request-popup button {
-  margin: 5px;
+/************************************************************
+  12) MEDIA QUERIES (Responsive)
+*************************************************************/
+@media (max-width: 992px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  .video-area,
+  .chat-area {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 
+  /* adapt to new size but keep smaller for narrower screens */
+  .user-video {
+    width: 200px;
+    height: 130px;
+  }
+  .message {
+    max-width: 100%;
+  }
 }
 
-/* 1) Make sure your .chat-input container is still a flex row */
-.chat-input {
+@media (max-width: 600px) {
+  .home-form input {
+    width: 220px;
+  }
+  .user-video {
+    width: 160px;
+    height: 100px;
+  }
+  .messages {
+    font-size: 0.9rem;
+  }
+}
+
+/************************************************************
+  13) LIGHT MODE OVERRIDES & ANIMATION
+*************************************************************/
+/* Light mode background gradient and animation */
+body.light-mode {
+  background: linear-gradient(-45deg,
+    #c599b6,
+    #fad0c4,
+    #b7b1f2,
+    #fdb7ea,
+    #bfecff,
+    #c9e9d2,
+    #ffc6c6,
+    #fffed3,
+    #bff6c3,
+    #ad88c6,
+    #fdffab
+  );
+  background-size: 400% 400%;
+  animation: lightGradientAnimation 1200s ease infinite;
+}
+
+@keyframes lightGradientAnimation {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Override button text color in light mode for better contrast */
+body.light-mode .glass-button {
+  color: #333;
+}
+
+/* (1) For the "Send" button in light mode, change background to #baffc9 */
+body.light-mode .chat-input button.glass-button {
+  background: #e2ffec;
+  color: #333;
+}
+
+/* (2) In the light mode, make the join request text darker too */
+body.light-mode .join-requests-queue .join-request-item p {
+  color: #333;
+}
+
+/* (3) Change accept button to #dcedc1, decline button to #ffd3b6 */
+body.light-mode .join-requests-queue .join-request-item button:nth-of-type(1) {
+  background: #dcedc1;
+  color: #333;
+}
+body.light-mode .join-requests-queue .join-request-item button:nth-of-type(2) {
+  background: #ffd3b6;
+  color: #333;
+}
+
+/* Light mode override for chat textarea placeholder and text color */
+body.light-mode .chat-input .chat-textarea::placeholder {
+  color: #555;
+}
+body.light-mode .chat-input .chat-textarea {
+  color: #333;
+}
+
+/* Light mode override for own chat messages (replace the blue gradient) */
+body.light-mode .message.own {
+  background: linear-gradient(135deg, #f9f3e8 0%, #e7d7b9 100%);
+  color: #333;
+}
+
+/*
+Keep or remove the .webrtc-section:hover .webrtc-controls rule if not needed,
+since the new overlay is inside each .user-video-container:
+*/
+.webrtc-section .webrtc-controls {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.webrtc-section:hover .webrtc-controls {
+  opacity: 1;
+  visibility: visible;
+}
+
+.video-overlay {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;            /* Position the overlay in the horizontal middle */
+  transform: translateX(-50%); /* Shift the overlay left by half its width */
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-/* 2) Style the new textarea similarly to your existing input */
-.chat-input .chat-textarea {
-  flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  outline: none;
-  resize: none;       /* prevents manual resizing */
-  font-family: 'Poppins', sans-serif;
-  font-size: 1rem;
-  min-height: 40px;   /* ensures a minimal visible height */
-  max-height: 120px;  /* caps the textarea growth */
-  overflow-y: auto;   /* scroll if it gets too tall */
+/* Position the textarea and the icon together */
+.emoji-textarea-container {
+  position: relative;
+  flex: 1; /* so it grows to fill available width */
 }
 
-/* 3) Optionally tweak placeholder styling */
-.chat-input .chat-textarea::placeholder {
-  color: rgba(255,255,255,0.8);
+/* Give the textarea some extra right padding to avoid typing under the icon */
+.chat-textarea {
+  width: 100%;
+  padding-right: 40px; /* add space for the emoji icon */
 }
 
-.join-requests-queue {
-  margin-top: 15px;
-  padding: 15px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 12px;
-  backdrop-filter: blur(5px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  color: white;
+/* The emoji icon that appears inside the textarea (on the right) */
+.emoji-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  font-size: 1.4rem;
+  cursor: pointer;
+  user-select: none; /* prevent text selection on click */
+  /* optional: add some background color, hover effect, etc. */
 }
 
-.join-requests-queue h4 {
-  margin-bottom: 10px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-  padding-bottom: 5px;
-}
-
-.join-request-item {
-  margin-bottom: 12px;
-  padding: 10px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.06);
-}
-
-.join-request-item p {
-  margin: 0 0 8px;
-}
-
-.join-request-item .countdown {
-  color: #ffb3b3;
-  font-weight: bold;
-}
-
-.request-buttons {
-  display: flex;
-}
 
