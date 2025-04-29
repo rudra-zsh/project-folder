@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@thelicato/react-file-manager": "^1.1.5",
     "react-tsparticles": "^2.12.2"
   }
 }

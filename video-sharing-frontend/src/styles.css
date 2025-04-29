@@ -1,6 +1,12 @@
-/**************************************************************
-  FONT & BASIC RESET
-***************************************************************/
+/************************************************************
+  styles.css (UPDATED)
+  Includes the enlarged .user-video dimensions + hover overlay
+  Citation: :contentReference[oaicite:0]{index=0}
+************************************************************/
+
+/************************************************************
+  1) BASIC RESET & FONTS
+*************************************************************/
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 * {
@@ -11,78 +17,46 @@
   transition: all 0.3s ease;
 }
 
-/**************************************************************
-  BODY & GLOBAL BACKGROUND
-***************************************************************/
-/* We'll simulate a blurred background image from the same 
-   video source. By default, we reference the same link 
-   you used in <video> for a "mirror" effect. 
-   If you switch video URLs, update here as well. 
-*/
-body::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: url("")
-              no-repeat center center / cover;
-  filter: blur(20px) brightness(0.3);
-  z-index: -1;
-  
-}
-
-/*
-body {
-  min-height: 100vh;
-  overflow-x: hidden;
-  background-color: #222; /* Fallback if image fails 
-}
-*/
-/* 
-
-1. this is bright animated background
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/************************************************************
+  2) BACKGROUND & GLOBAL
+*************************************************************/
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  background: linear-gradient(-45deg, #ff6b6b, #f7b801, #6bffb5, #4f9eff);
+  overflow: auto;
+  /* Dark Mode background gradient (default) */
+  background: linear-gradient(-45deg,
+    #0000,
+    #15156b,
+    #00001a,
+    #003516,
+    #00071f,
+    #030926,
+    #01012e,
+    #2e0000,
+    #000000,
+    #000000
+  );
   background-size: 400% 400%;
-  animation: gradientAnimation 10s ease infinite;
+  animation: gradientAnimation 1200s ease infinite;
+  scrollbar-width: none;
 }
 
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Dark mode keyframes */
 @keyframes gradientAnimation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-*/
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background: linear-gradient(-45deg, #1e1e2e, #282a36, #212121, #0f0f0f);
-  background-size: 400% 400%;
-  animation: gradientAnimation 10s ease infinite;
-}
-
-@keyframes gradientAnimation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-
-/**************************************************************
-  3D & GLASS-LIKE UTILS
-***************************************************************/
+/************************************************************
+  3) GLASS BUTTON
+*************************************************************/
 .glass-button {
   display: inline-block;
   padding: 12px 25px;
@@ -99,15 +73,32 @@ body {
   transform-style: preserve-3d;
   transition: transform 0.4s ease, background 0.4s ease;
 }
-
 .glass-button:hover {
   transform: translateZ(15px) rotateX(5deg);
   background: rgba(255,255,255,0.35);
 }
 
-/**************************************************************
-  LOADING SCREEN 
-***************************************************************/
+.leave-button-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Red-glass button variation */
+.red-glass {
+  background: rgba(255, 0, 0, 0.3);
+  border: 1px solid rgba(255, 0, 0, 0.4);
+}
+
+.red-glass:hover {
+  background: rgba(255, 0, 0, 0.5);
+  transform: translateZ(15px) rotateX(5deg);
+}
+
+/************************************************************
+  4) LOADING SCREEN
+*************************************************************/
 .loading-screen {
   position: fixed;
   inset: 0;
@@ -127,12 +118,10 @@ body {
   border-radius: 50%;
   animation: spin 1.2s linear infinite;
   margin-bottom: 20px;
-  transform: perspective(800px) translateZ(0) rotateX(0deg);
 }
-
 @keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .loading-text {
@@ -142,33 +131,14 @@ body {
   text-shadow: 0 0 10px rgba(255,255,255,0.5);
   animation: pulseText 1.5s infinite;
 }
-
 @keyframes pulseText {
-  0%,100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
 }
 
-/**************************************************************
-  APP CONTAINER
-***************************************************************/
-.app-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 30px;
-  color: #fff;
-}
-
-h1, h2, h3 {
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-}
-
-/**************************************************************
-  HOME PAGE 
-***************************************************************/
+/************************************************************
+  5) HOME PAGE
+*************************************************************/
 .home-page {
   display: flex;
   flex-direction: column;
@@ -206,119 +176,174 @@ h1, h2, h3 {
   color: rgba(255,255,255,0.8);
 }
 
-.home-form button {
-  /* Using the .glass-button style for consistency */
-  @extend .glass-button;
-}
-
-/**************************************************************
-  ROOM PAGE
-***************************************************************/
+/************************************************************
+  6) ROOM PAGE LAYOUT
+*************************************************************/
 .room-page {
-  margin-top: 40px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  width: 100%;
+  padding: 20px;
 }
 
-.room-page h2 {
+.room-header {
   margin-bottom: 20px;
-  font-size: 2rem;
 }
 
-.video-chat-container {
+/* Main layout: left "video-area" & right "chat-area" */
+.main-layout {
   display: flex;
   flex-direction: row;
-  width: 90%;
-  max-width: 1400px;
   gap: 20px;
 }
 
-/**************************************************************
-  VIDEO CONTAINER 
-  - 2/3 screen for video
-  - dynamic "playing" vs "paused" backgrounds
-***************************************************************/
-.video-container {
-  flex: 2; /* 2/3 of available space */
-  border-radius: 15px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-  padding: 20px;
-  position: relative;
-  transition: background 0.7s ease;
-}
-
-.video-container.playing {
-  background: rgba(30,150,30,0.2);
-}
-
-.video-container.paused {
-  background: rgba(150,30,30,0.2);
-}
-
-/**************************************************************
-  VIDEO PLAYER 
-***************************************************************/
-.video-player {
-  border-radius: 15px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.05);
-  padding: 20px;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-}
-
-.video-player h3 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-
-.video-player p {
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-}
-
-.video-player video {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.6);
-}
-
-.video-player button {
-  @extend .glass-button;
-  margin-bottom: 8px;
-}
-
-/**************************************************************
-  USER VIDEO FEED
-***************************************************************/
-.user-video-feed {
-  margin-top: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 10px;
-  padding: 15px;
-  background: rgba(255,255,255,0.08);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-/**************************************************************
-  CHAT SECTION (1/3 screen, iMessage style)
-***************************************************************/
-.chat-section {
-  flex: 1; /* 1/3 of available space */
-  display:flex;
+.video-area {
+  flex: 2;
+  display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+/* The row of small user videos on top (thumbnails) */
+.top-thumbnails {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+/* The main big video area (synced video player) */
+.big-video {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Right side: chat panel */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/************************************************************
+  7) VIDEO PLAYER
+*************************************************************/
+.video-player {
+  width: 100%;
+}
+
+/************************************************************
+  8) WEBRTC SECTION
+*************************************************************/
+.webrtc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.video-thumbnails {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Larger .user-video dimensions (local & remote) */
+.user-video {
+  width: 240px; /* changed from 120px */
+  height: 160px; /* changed from 80px */
+  background: #000;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Old: webrtc-controls for separate button area (optional)
+.webrtc-controls {
+  display: flex;
+  gap: 8px;
+}
+*/
+
+/************************************************************
+  9) HOVER CONTROLS OVER VIDEO
+*************************************************************/
+/* Container around each local/remote video for positioning the overlay */
+.user-video-container {
+  position: relative;
+  display: inline-block; /* allows .video-overlay to be absolutely placed */
+}
+
+/* The icons overlay that shows up on hover (for local video) */
+.video-overlay {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/*
+If you need controls for remote videos as well, uncomment & customize:
+.video-overlay-remote {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+*/
+
+/* Show overlays on hover */
+.user-video-container:hover .video-overlay,
+.user-video-container:hover .video-overlay-remote {
+  opacity: 1;
+}
+
+/* Example styling for icon buttons */
+.icon-button {
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: rgba(0,0,0,0.7);
+}
+
+/************************************************************
+  10) CHAT SECTION
+*************************************************************/
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background: rgba(255,255,255,0.15);
   backdrop-filter: blur(10px);
   border-radius: 15px;
   border: 1px solid rgba(255,255,255,0.2);
   padding: 20px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-  height: 50vh;
+  overflow-y: auto;
+  min-height: 70vh;
+  max-height: 70vh;
+  width: 100%;
 }
 
 .chat-section h3 {
@@ -335,28 +360,35 @@ h1, h2, h3 {
   padding: 10px;
   box-shadow: inset 0 5px 15px rgba(0,0,0,0.4);
   margin-bottom: 10px;
-  position: relative;
 }
 
-/* iMessage-like bubbles (all on the left for simplicity).
-   If you want them on both sides, add logic for "self" vs "others". */
 .message {
-  display:flexbox;
+  display: block;
   background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
   color: #333;
   padding: 10px 15px;
   border-radius: 20px;
   margin: 5px 0;
-  max-width: 80%;
+  width: 70%;
   word-break: break-word;
   animation: fadeInBubble 0.3s ease forwards;
-  position: relative;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
+.message.own {
+  margin-left: auto;
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  text-align: left;
+}
+
+.message.other {
+  margin-right: auto;
+  text-align: left;
+}
+
 @keyframes fadeInBubble {
-  from { opacity: 0; transform: translateY(5px);}
-  to { opacity: 1; transform: translateY(0);}
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .messages::-webkit-scrollbar {
@@ -375,7 +407,7 @@ h1, h2, h3 {
   gap: 10px;
 }
 
-.chat-input input[type="text"] {
+.chat-input .chat-textarea {
   flex: 1;
   padding: 12px;
   border-radius: 8px;
@@ -383,24 +415,103 @@ h1, h2, h3 {
   background: rgba(255,255,255,0.08);
   color: #fff;
   outline: none;
+  resize: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
 }
 
-.chat-input button {
-  @extend .glass-button;
+.chat-input .chat-textarea::placeholder {
+  color: rgba(255,255,255,0.8);
 }
 
-/**************************************************************
-  MEDIA QUERIES
-***************************************************************/
+/************************************************************
+  11) JOIN REQUEST QUEUE & NOTIFICATIONS
+*************************************************************/
+.join-requests-queue {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  color: white;
+}
+
+.join-requests-queue .join-request-item {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+}
+
+.join-requests-queue .request-buttons {
+  display: flex;
+}
+
+.countdown {
+  color: #ffb3b3;
+  font-weight: bold;
+}
+
+/* Temporary pop-ups for approvals/denials */
+.join-requests-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 9999;
+}
+
+.join-request-popup {
+  background: linear-gradient(-45deg, #0000, #15156b, #00001a, #003516, #00071f, #030926, #01012e, #2e0000, #000000, #000000);
+  background-size: 400% 400%;
+  animation: gradientAnimation 1200s ease infinite;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: #fff;
+  width: 250px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.join-request-popup p {
+  margin: 5px 0;
+  font-size: 0.95rem;
+}
+
+.join-request-popup strong {
+  font-weight: 600;
+}
+
+/************************************************************
+  12) MEDIA QUERIES (Responsive)
+*************************************************************/
 @media (max-width: 992px) {
-  .video-chat-container {
+  .main-layout {
     flex-direction: column;
   }
-  
-  .video-container, .chat-section {
-    flex: none;
+  .video-area,
+  .chat-area {
     width: 100%;
     margin-bottom: 20px;
+  }
+
+  /* adapt to new size but keep smaller for narrower screens */
+  .user-video {
+    width: 200px;
+    height: 130px;
+  }
+  .message {
+    max-width: 100%;
   }
 }
 
@@ -408,60 +519,131 @@ h1, h2, h3 {
   .home-form input {
     width: 220px;
   }
-  
-  .video-player p {
-    font-size: 0.8rem;
+  .user-video {
+    width: 160px;
+    height: 100px;
+  }
+  .messages {
+    font-size: 0.9rem;
   }
 }
 
-/**************************************************************
-  EXTRA ANIMATIONS
-***************************************************************/
-@keyframes float3D {
-  0% { transform: translateY(0) rotateY(0deg);}
-  50% { transform: translateY(-10px) rotateY(180deg);}
-  100% { transform: translateY(0) rotateY(360deg);}
+/************************************************************
+  13) LIGHT MODE OVERRIDES & ANIMATION
+*************************************************************/
+/* Light mode background gradient and animation */
+body.light-mode {
+  background: linear-gradient(-45deg,
+    #c599b6,
+    #fad0c4,
+    #b7b1f2,
+    #fdb7ea,
+    #bfecff,
+    #c9e9d2,
+    #ffc6c6,
+    #fffed3,
+    #bff6c3,
+    #ad88c6,
+    #fdffab
+  );
+  background-size: 400% 400%;
+  animation: lightGradientAnimation 1200s ease infinite;
 }
 
-@keyframes neonGlow {
-  0%,100% {
-    box-shadow: 0 0 10px rgba(255,255,255,0.3);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(255,255,255,0.7);
-  }
+@keyframes lightGradientAnimation {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/**************************************************************
-  UTILS
-***************************************************************/
-@keyframes pulse {
-  0% { transform: scale(1);}
-  50% { transform: scale(1.1);}
-  100% { transform: scale(1);}
+/* Override button text color in light mode for better contrast */
+body.light-mode .glass-button {
+  color: #333;
 }
 
-/* scroll */
+/* (1) For the "Send" button in light mode, change background to #baffc9 */
+body.light-mode .chat-input button.glass-button {
+  background: #e2ffec;
+  color: #333;
+}
 
-.messages {
-  max-height: 50vh;  /* Adjust as needed */
-  overflow-y: auto;
-  padding: 10px;
-  border: 1px solid #ccc;
+/* (2) In the light mode, make the join request text darker too */
+body.light-mode .join-requests-queue .join-request-item p {
+  color: #333;
+}
+
+/* (3) Change accept button to #dcedc1, decline button to #ffd3b6 */
+body.light-mode .join-requests-queue .join-request-item button:nth-of-type(1) {
+  background: #dcedc1;
+  color: #333;
+}
+body.light-mode .join-requests-queue .join-request-item button:nth-of-type(2) {
+  background: #ffd3b6;
+  color: #333;
+}
+
+/* Light mode override for chat textarea placeholder and text color */
+body.light-mode .chat-input .chat-textarea::placeholder {
+  color: #555;
+}
+body.light-mode .chat-input .chat-textarea {
+  color: #333;
+}
+
+/* Light mode override for own chat messages (replace the blue gradient) */
+body.light-mode .message.own {
+  background: linear-gradient(135deg, #f9f3e8 0%, #e7d7b9 100%);
+  color: #333;
+}
+
+/*
+Keep or remove the .webrtc-section:hover .webrtc-controls rule if not needed,
+since the new overlay is inside each .user-video-container:
+*/
+.webrtc-section .webrtc-controls {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.webrtc-section:hover .webrtc-controls {
+  opacity: 1;
+  visibility: visible;
+}
+
+.video-overlay {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;            /* Position the overlay in the horizontal middle */
+  transform: translateX(-50%); /* Shift the overlay left by half its width */
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Position the textarea and the icon together */
+.emoji-textarea-container {
+  position: relative;
+  flex: 1; /* so it grows to fill available width */
+}
+
+/* Give the textarea some extra right padding to avoid typing under the icon */
+.chat-textarea {
+  width: 100%;
+  padding-right: 40px; /* add space for the emoji icon */
+}
+
+/* The emoji icon that appears inside the textarea (on the right) */
+.emoji-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  font-size: 1.4rem;
+  cursor: pointer;
+  user-select: none; /* prevent text selection on click */
+  /* optional: add some background color, hover effect, etc. */
 }
 
 
-/*CSS for a loading spinner */
-.loader {
-  border: 16px solid #f3f3f3;
-  border-top: 16px solid #3498db;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
